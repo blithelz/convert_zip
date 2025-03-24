@@ -1,0 +1,75 @@
+name: CI/CD Build
+
+on:
+  push:
+    tags:
+      - "v*"  # 推送 tag 时触发构建（如 v1.0.0）
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            artifact_name: "converter_win"
+            pyinstaller_args: "--noconsole --add-binary 'unrar.exe;.'"
+          - os: macos-latest
+            artifact_name: "converter_mac"
+            pyinstaller_args: "--noconsole"
+          - os: ubuntu-latest
+            artifact_name: "converter_linux"
+            pyinstaller_args: "--noconsole"
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.9"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Install unrar (Linux/macOS)
+      if: matrix.os != 'windows-latest'
+      run: |
+        sudo apt-get install -y unrar  # Ubuntu
+        # 或 macOS: brew install unrar
+
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller --onefile ${{ matrix.pyinstaller_args }} gui_converter.py
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact_name }}
+        path: |
+          dist/gui_converter
+          dist/gui_converter.exe
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        files: |
+          artifacts/converter_win/gui_converter.exe
+          artifacts/converter_mac/gui_converter
+          artifacts/converter_linux/gui_converter
