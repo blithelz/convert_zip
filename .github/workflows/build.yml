@@ -1,10 +1,10 @@
-name: Multi-Platform Build
+name: CI/CD Build
 
 on:
   push:
     tags:
-      - "v*"
-  workflow_dispatch:
+      - "v*"  # 推送 tag 时触发构建（如 v1.0.0）
+  workflow_dispatch:  # 允许手动触发
 
 jobs:
   build:
@@ -14,96 +14,52 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
         include:
           - os: windows-latest
-            artifact_name: "Windows_Converter"
+            artifact_name: "converter_win"
             pyinstaller_args: "--noconsole --add-binary 'unrar.exe;.'"
-            output_path: "dist/gui_converter.exe"
-            shell: pwsh
           - os: macos-latest
-            artifact_name: "macOS_Converter"
-            pyinstaller_args: "--windowed --osx-bundle-identifier com.example.converter"
-            output_path: "dist/Converter.app"
-            shell: bash
-          - os: ubuntu-latest
-            artifact_name: "Linux_Converter"
+            artifact_name: "converter_mac"
             pyinstaller_args: "--noconsole"
-            output_path: "dist/gui_converter"
-            shell: bash
-      fail-fast: false  # 允许独立失败
+          - os: ubuntu-latest
+            artifact_name: "converter_linux"
+            pyinstaller_args: "--noconsole"
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # Windows 专用步骤
-    - name: Download unrar for Windows
-      if: matrix.os == 'windows-latest'
-      shell: pwsh
-      run: |
-        Invoke-WebRequest -Uri "https://www.rarlab.com/rar/winrar-x64-624.exe" -OutFile "winrar.exe"
-        Start-Process -Wait -FilePath ".\winrar.exe" -ArgumentList "/S"
-        Copy-Item "C:\Program Files\WinRAR\UnRAR.exe" -Destination "unrar.exe"
-
-    # macOS/Linux 依赖安装
-    - name: Install system dependencies
-      if: matrix.os != 'windows-latest'
-      shell: ${{ matrix.shell }}
-      run: |
-        if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-          brew install unrar
-        elif [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-          sudo apt-get update
-          sudo apt-get install -y unrar
-        fi
-
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.9"
+        python-version: "3.12.3"
 
-    - name: Install Python dependencies
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pyinstaller
+
+    - name: Install unrar (Linux/macOS)
+      if: matrix.os != 'windows-latest'
+      run: |
+        sudo apt-get install -y unrar  # Ubuntu
+        # 或 macOS: brew install unrar
 
     - name: Build with PyInstaller
-      shell: ${{ matrix.shell }}
       run: |
-        pyinstaller ${{ matrix.pyinstaller_args }} \
-          --name "Converter" \
-          --icon "assets/icon.ico" \
-          --add-data "assets/*:assets" \
-          --clean \
-          gui_converter.py
-
-        # macOS 应用签名（伪签名）
-        if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-          codesign --force --deep -s - "dist/Converter.app"
-        fi
-
-    - name: Package artifacts
-      shell: ${{ matrix.shell }}
-      run: |
-        if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-          ditto -c -k --sequesterRsrc --keepParent "dist/Converter.app" "Converter_macOS.zip"
-        else
-          7z a "${{ matrix.artifact_name }}.7z" "${{ matrix.output_path }}"
-        fi
+        pyinstaller --onefile ${{ matrix.pyinstaller_args }} gui_converter.py
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact_name }}
         path: |
-          ${{ matrix.output_path }}
-          *.7z
-          *.zip
+          dist/gui_converter
+          dist/gui_converter.exe
 
   release:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Download artifacts
+    - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
         path: artifacts
@@ -114,4 +70,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         files: |
-          artifacts/**/*
+          artifacts/converter_win/gui_converter.exe
+          artifacts/converter_mac/gui_converter
+          artifacts/converter_linux/gui_converter
