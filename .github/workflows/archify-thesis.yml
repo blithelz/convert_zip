@@ -41,12 +41,12 @@ jobs:
         shell: bash
         run: |
           mkdir -p out
-          node "$SKILL_ROOT/bin/archify.mjs" validate workflow             archify-thesis/thesis-structure.workflow.json             --quality showcase --json             | tee out/validate-receipt.json
+          node "$SKILL_ROOT/bin/archify.mjs" validate workflow             archify-thesis/thesis-structure-v2.workflow.json             --quality showcase --json             | tee out/validate-receipt.json
 
       - name: Deliver verified interactive HTML
         shell: bash
         run: |
-          node "$SKILL_ROOT/bin/archify.mjs" deliver workflow             archify-thesis/thesis-structure.workflow.json             out/thesis_structure_archify.html             --quality showcase --json             | tee out/deliver-receipt.json
+          node "$SKILL_ROOT/bin/archify.mjs" deliver workflow             archify-thesis/thesis-structure-v2.workflow.json             out/thesis_structure_archify.html             --quality showcase --json             | tee out/deliver-receipt.json
 
       - name: Collect browser visual evidence
         shell: bash
@@ -55,7 +55,7 @@ jobs:
 
       - name: Preserve source
         shell: bash
-        run: cp archify-thesis/thesis-structure.workflow.json out/thesis_structure_archify.workflow.json
+        run: cp archify-thesis/thesis-structure-v2.workflow.json out/thesis_structure_archify.workflow.json
 
       - name: Upload Archify outputs
         uses: actions/upload-artifact@v4
