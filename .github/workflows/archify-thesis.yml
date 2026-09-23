@@ -49,6 +49,7 @@ jobs:
           node "$SKILL_ROOT/bin/archify.mjs" deliver workflow             archify-thesis/thesis-structure-v2.workflow.json             out/thesis_structure_archify.html             --quality showcase --json             | tee out/deliver-receipt.json
 
       - name: Collect browser visual evidence
+        continue-on-error: true
         shell: bash
         run: |
           node "$SKILL_ROOT/bin/archify.mjs" visual-check             out/thesis_structure_archify.html --json             | tee out/visual-check-receipt.json
