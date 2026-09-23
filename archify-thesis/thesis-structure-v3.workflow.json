@@ -1,0 +1,155 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "严反馈系统的实际预设时间控制方法及其航天器应用",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": "out/thesis_structure_archify.html",
+    "legend": {
+      "mode": "hidden"
+    }
+  },
+  "lanes": [
+    {
+      "id": "base",
+      "label": "基础方法"
+    },
+    {
+      "id": "matched",
+      "label": "匹配扰动拓展"
+    },
+    {
+      "id": "mismatched",
+      "label": "非匹配扰动拓展"
+    },
+    {
+      "id": "saturation",
+      "label": "输入约束拓展"
+    },
+    {
+      "id": "spacecraft",
+      "label": "航天器应用"
+    }
+  ],
+  "mainPath": [
+    "ch2",
+    "ch3",
+    "ch4",
+    "ch5",
+    "ch6"
+  ],
+  "nodes": [
+    {
+      "id": "ch2",
+      "lane": "base",
+      "col": 2,
+      "type": "backend",
+      "label": "第2章｜无扰动严反馈系统",
+      "sublabel": "变量缩放变换 · 实际预设时间控制",
+      "tag": "控制方法基础",
+      "width": 400,
+      "height": 82
+    },
+    {
+      "id": "ch3",
+      "lane": "matched",
+      "col": 2,
+      "type": "backend",
+      "label": "第3章｜匹配扰动严反馈系统",
+      "sublabel": "预设误差轨迹 · 实际预设时间跟踪控制",
+      "tag": "引入匹配扰动",
+      "width": 400,
+      "height": 82
+    },
+    {
+      "id": "ch4",
+      "lane": "mismatched",
+      "col": 2,
+      "type": "backend",
+      "label": "第4章｜非匹配扰动严反馈系统",
+      "sublabel": "干扰观测器 · 实际预设时间控制",
+      "tag": "拓展至非匹配扰动",
+      "width": 400,
+      "height": 82
+    },
+    {
+      "id": "ch5",
+      "lane": "saturation",
+      "col": 2,
+      "type": "backend",
+      "label": "第5章｜非匹配扰动与输入饱和",
+      "sublabel": "扰动观测与抗饱和 · 实际预设时间控制",
+      "tag": "进一步考虑输入饱和",
+      "width": 400,
+      "height": 82
+    },
+    {
+      "id": "ch6",
+      "lane": "spacecraft",
+      "col": 2,
+      "type": "cloud",
+      "label": "第6章｜挠性航天器",
+      "sublabel": "实际预设时间姿轨跟踪控制",
+      "tag": "理论方法拓展与应用",
+      "width": 390,
+      "height": 86
+    }
+  ],
+  "edges": [
+    {
+      "id": "e23",
+      "from": "ch2",
+      "to": "ch3",
+      "label": "引入匹配扰动",
+      "variant": "default",
+      "role": "main",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "straight"
+    },
+    {
+      "id": "e34",
+      "from": "ch3",
+      "to": "ch4",
+      "label": "拓展至非匹配扰动",
+      "variant": "emphasis",
+      "role": "main",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "straight"
+    },
+    {
+      "id": "e45",
+      "from": "ch4",
+      "to": "ch5",
+      "label": "进一步考虑输入饱和",
+      "variant": "security",
+      "role": "main",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "straight"
+    },
+    {
+      "id": "e56",
+      "from": "ch5",
+      "to": "ch6",
+      "label": "理论方法拓展",
+      "variant": "emphasis",
+      "role": "main",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "straight"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "slate",
+      "title": "第2—5章共同仿真模型",
+      "items": [
+        "刚体航天器姿态控制仿真",
+        "第2章：姿态镇定；第3—5章：姿态跟踪"
+      ]
+    }
+  ]
+}
