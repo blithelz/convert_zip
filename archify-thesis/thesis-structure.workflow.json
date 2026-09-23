@@ -5,8 +5,7 @@
     "title": "严反馈系统的实际预设时间控制方法及其航天器应用",
     "locale": "zh-CN",
     "quality_profile": "showcase",
-    "output": "out/thesis_structure_archify.html",
-    "viewBox": [1200, 780]
+    "output": "out/thesis_structure_archify.html"
   },
   "lanes": [
     { "id": "method", "label": "理论方法主线" },
