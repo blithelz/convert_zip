@@ -6,7 +6,7 @@
     "locale": "zh-CN",
     "quality_profile": "showcase",
     "output": "out/thesis_structure_archify.html",
-    "viewBox": [1760, 780]
+    "viewBox": [1200, 780]
   },
   "lanes": [
     { "id": "method", "label": "理论方法主线" },
