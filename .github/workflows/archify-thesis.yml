@@ -1,0 +1,66 @@
+name: Archify thesis structure
+
+on:
+  push:
+    branches:
+      - archify-thesis-structure-20260923
+    paths:
+      - "archify-thesis/**"
+      - ".github/workflows/archify-thesis.yml"
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    env:
+      ARCHIFY_UPDATE_CHECK_DISABLED: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Download official Archify skill
+        shell: bash
+        run: |
+          curl -fL --retry 3             https://github.com/tt-a1i/archify/releases/download/v2.16.0/archify.zip             -o /tmp/archify.zip
+          rm -rf /tmp/archify-skill
+          mkdir -p /tmp/archify-skill
+          unzip -q /tmp/archify.zip -d /tmp/archify-skill
+          SKILL_ROOT="$(find /tmp/archify-skill -type f -name SKILL.md -print -quit | xargs dirname)"
+          test -n "$SKILL_ROOT"
+          echo "SKILL_ROOT=$SKILL_ROOT" >> "$GITHUB_ENV"
+
+      - name: Archify doctor
+        shell: bash
+        run: node "$SKILL_ROOT/bin/archify.mjs" doctor
+
+      - name: Validate showcase diagram
+        shell: bash
+        run: |
+          mkdir -p out
+          node "$SKILL_ROOT/bin/archify.mjs" validate workflow             archify-thesis/thesis-structure.workflow.json             --quality showcase --json             | tee out/validate-receipt.json
+
+      - name: Deliver verified interactive HTML
+        shell: bash
+        run: |
+          node "$SKILL_ROOT/bin/archify.mjs" deliver workflow             archify-thesis/thesis-structure.workflow.json             out/thesis_structure_archify.html             --quality showcase --json             | tee out/deliver-receipt.json
+
+      - name: Collect browser visual evidence
+        shell: bash
+        run: |
+          node "$SKILL_ROOT/bin/archify.mjs" visual-check             out/thesis_structure_archify.html --json             | tee out/visual-check-receipt.json
+
+      - name: Preserve source
+        shell: bash
+        run: cp archify-thesis/thesis-structure.workflow.json out/thesis_structure_archify.workflow.json
+
+      - name: Upload Archify outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: thesis-structure-archify
+          path: out/
+          if-no-files-found: error
+          retention-days: 7
